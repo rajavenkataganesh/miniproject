@@ -94,6 +94,36 @@ def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]], headers_
         "info": 0
     }
 
+    # Generate findings for missing/warning HTTP security headers
+    if headers_eval:
+        for h_key, h_data in headers_eval.items():
+            if h_data.get("status") == "MISSING":
+                findings.append({
+                    "id": f"FIND-{finding_counter:03d}",
+                    "endpoint": "HTTP Response Headers",
+                    "severity": "LOW",
+                    "category": "Security Header",
+                    "title": f"Missing {h_key} Security Header",
+                    "reason": f"The response header '{h_key}' is missing from the target web server responses.",
+                    "impact": f"Reduces browser defense hardening against attacks targeting {h_key.lower()}.",
+                    "solution": f"Configure web server to transmit the '{h_key}' header on all responses."
+                })
+                finding_counter += 1
+                stats["low_risk"] += 1
+            elif h_data.get("status") == "WARNING":
+                findings.append({
+                    "id": f"FIND-{finding_counter:03d}",
+                    "endpoint": "HTTP Response Headers",
+                    "severity": "LOW",
+                    "category": "Security Header",
+                    "title": f"Suboptimal {h_key} Header Directive",
+                    "reason": h_data.get("description"),
+                    "impact": "Potential exposure to inline script execution.",
+                    "solution": "Refactor CSP policy to remove 'unsafe-inline' and use cryptographic nonces."
+                })
+                finding_counter += 1
+                stats["low_risk"] += 1
+
     for ep in raw_endpoints:
         path = ep["url"]
         status_code = ep.get("status_code", 0)
@@ -173,19 +203,6 @@ def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]], headers_
         else:
             stats["info"] += 1
 
-        processed_endpoints.append({
-            "url": path,
-            "method": ep.get("method", "GET"),
-            "category": category,
-            "status_code": status_code,
-            "accessible": accessible,
-            "requires_protection": requires_protection,
-            "risk": risk,
-            "reason": reason,
-            "recommendation": recommendation
-        })
-
-    # Header-based deductions
     header_deductions = 0
     if headers_eval:
         for h_key, h_data in headers_eval.items():
