@@ -64,7 +64,7 @@ def get_demo_scan():
 @app.post("/api/scan")
 async def run_live_scan(payload: ScanRequest):
     """
-    Perform authorized passive crawl and security analysis on target URL with a strict 2.5s execution budget.
+    Perform authorized passive crawl and security analysis on target URL with a 2.5s execution budget.
     """
     global current_scan_data
     target_url = payload.url.strip()
@@ -72,11 +72,9 @@ async def run_live_scan(payload: ScanRequest):
         raise HTTPException(status_code=400, detail="Target URL is required")
 
     try:
-        # Step 1: Enforce 2.5s overall crawl budget
         try:
             crawl_result = await asyncio.wait_for(async_safe_crawl(target_url, max_pages=15), timeout=2.5)
         except asyncio.TimeoutError:
-            # If network crawl hits budget limit, fallback safely with target metadata
             crawl_result = {
                 "target": target_url,
                 "domain": target_url.replace("https://", "").replace("http://", "").split("/")[0],
@@ -90,11 +88,11 @@ async def run_live_scan(payload: ScanRequest):
                 ]
             }
         
-        # Step 2: Perform security header analysis
+        # Step 1: Analyze headers
         headers_eval = analyze_headers(crawl_result.get("headers", {}))
         
-        # Step 3: Classify endpoints & generate findings
-        analysis = analyze_endpoints_and_findings(crawl_result.get("raw_endpoints", []))
+        # Step 2: Classify endpoints & generate score including header evaluation
+        analysis = analyze_endpoints_and_findings(crawl_result.get("raw_endpoints", []), headers_eval)
 
         combined_result = {
             "target": crawl_result["target"],

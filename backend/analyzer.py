@@ -1,7 +1,6 @@
 import re
 from typing import List, Dict, Any
 
-# Path pattern rules for category classification
 CATEGORY_RULES = [
     ("Admin", [r"^/admin", r"^/administrator", r"^/manage", r"^/dashboard", r"^/control", r"^/panel"]),
     ("API", [r"^/api", r"^/v1", r"^/v2", r"^/graphql", r"^/rest", r"^/service"]),
@@ -11,7 +10,6 @@ CATEGORY_RULES = [
     ("Public", [r"^/$", r"^/about", r"^/contact", r"^/pricing", r"^/docs", r"^/privacy", r"^/terms", r"^/faq", r"^/help"])
 ]
 
-# Sensitive paths requiring protection check
 SENSITIVE_PATTERNS = [
     (r"^/admin", "HIGH", "Admin", "Potentially sensitive administrative endpoint appears publicly accessible without auth barrier."),
     (r"^/config", "MEDIUM", "Other", "Configuration file path exposed on web server path."),
@@ -80,7 +78,7 @@ def analyze_headers(headers: Dict[str, str]) -> Dict[str, Any]:
 
     return results
 
-def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]]) -> Dict[str, Any]:
+def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]], headers_eval: Dict[str, Any] = None) -> Dict[str, Any]:
     processed_endpoints = []
     findings = []
     finding_counter = 1
@@ -107,7 +105,6 @@ def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]]) -> Dict[
         recommendation = "No security remediation needed."
         requires_protection = False
 
-        # Sensitivity analysis
         is_sensitive = False
         matched_severity = "LOW"
         matched_reason = ""
@@ -123,7 +120,6 @@ def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]]) -> Dict[
         if category in ["Admin", "User", "API"] and path != "/":
             requires_protection = True
 
-        # Protection evaluation
         if accessible and status_code in [200, 201, 202]:
             if is_sensitive:
                 risk = matched_severity
@@ -163,7 +159,6 @@ def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]]) -> Dict[
             reason = f"Endpoint returns HTTP {status_code} protection or redirection signal."
             recommendation = "Maintain current access restriction policy."
 
-        # Counts update
         if category == "Public":
             stats["public_endpoints"] += 1
         if requires_protection:
@@ -190,8 +185,17 @@ def analyze_endpoints_and_findings(raw_endpoints: List[Dict[str, Any]]) -> Dict[
             "recommendation": recommendation
         })
 
+    # Header-based deductions
+    header_deductions = 0
+    if headers_eval:
+        for h_key, h_data in headers_eval.items():
+            if h_data.get("status") == "MISSING":
+                header_deductions += 5
+            elif h_data.get("status") == "WARNING":
+                header_deductions += 3
+
     # Calculate overall security score (0 - 100)
-    deductions = (stats["high_risk"] * 15) + (stats["medium_risk"] * 8) + (stats["low_risk"] * 3)
+    deductions = (stats["high_risk"] * 15) + (stats["medium_risk"] * 8) + (stats["low_risk"] * 3) + header_deductions
     security_score = max(10, min(100, 100 - deductions))
 
     return {
