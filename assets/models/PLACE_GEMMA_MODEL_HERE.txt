@@ -1,0 +1,3 @@
+Place your Gemma model file (e.g. gemma-4.bin or .gguf) in this directory.
+EndpointGuard will automatically detect compatible models when present.
+When no model file is found, EndpointGuard runs seamlessly in Demo AI Mode.

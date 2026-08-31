@@ -1,0 +1,567 @@
+{
+  "target": "https://demo-corp.example.com",
+  "scan_time": "2026-08-31T17:50:00Z",
+  "security_score": 72,
+  "stats": {
+    "total_endpoints": 36,
+    "public_endpoints": 18,
+    "sensitive_endpoints": 12,
+    "protected_endpoints": 6,
+    "high_risk": 3,
+    "medium_risk": 5,
+    "low_risk": 4,
+    "info": 24
+  },
+  "https_status": {
+    "enabled": true,
+    "enforced": true,
+    "message": "HTTPS is enabled with automatic HTTP redirection."
+  },
+  "security_headers": {
+    "Strict-Transport-Security": {
+      "status": "PASS",
+      "value": "max-age=31536000; includeSubDomains",
+      "description": "HTTP Strict Transport Security is active."
+    },
+    "Content-Security-Policy": {
+      "status": "WARNING",
+      "value": "default-src 'self' 'unsafe-inline' https:",
+      "description": "CSP header present but allows 'unsafe-inline'."
+    },
+    "X-Frame-Options": {
+      "status": "PASS",
+      "value": "DENY",
+      "description": "Clickjacking protection enabled via DENY."
+    },
+    "X-Content-Type-Options": {
+      "status": "PASS",
+      "value": "nosniff",
+      "description": "Prevents MIME-sniffing vulnerabilities."
+    },
+    "Referrer-Policy": {
+      "status": "MISSING",
+      "value": null,
+      "description": "Referrer-Policy header is missing, potential referrer leakage."
+    }
+  },
+  "endpoints": [
+    {
+      "url": "/",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Standard public homepage",
+      "recommendation": "Maintain standard public content controls."
+    },
+    {
+      "url": "/about",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public informational page",
+      "recommendation": "No action needed."
+    },
+    {
+      "url": "/contact",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public contact form page",
+      "recommendation": "Ensure CSRF protection on form submission."
+    },
+    {
+      "url": "/pricing",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public pricing catalog",
+      "recommendation": "No action needed."
+    },
+    {
+      "url": "/docs",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public documentation index",
+      "recommendation": "Verify internal references are sanitized."
+    },
+    {
+      "url": "/login",
+      "method": "GET",
+      "category": "Authentication",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "LOW",
+      "reason": "Public login portal interface",
+      "recommendation": "Enforce rate limiting and HTTPS transmission."
+    },
+    {
+      "url": "/register",
+      "method": "GET",
+      "category": "Authentication",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "LOW",
+      "reason": "Public account registration page",
+      "recommendation": "Implement CAPTCHA and strong password validation rules."
+    },
+    {
+      "url": "/forgot-password",
+      "method": "GET",
+      "category": "Authentication",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "LOW",
+      "reason": "Password recovery request form",
+      "recommendation": "Use generic responses to prevent user enumeration."
+    },
+    {
+      "url": "/logout",
+      "method": "GET",
+      "category": "Authentication",
+      "status_code": 302,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "Session termination endpoint",
+      "recommendation": "Invalidate session tokens server-side upon request."
+    },
+    {
+      "url": "/user/profile",
+      "method": "GET",
+      "category": "User",
+      "status_code": 401,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "User profile dashboard - properly protected with 401 Unauthorized status",
+      "recommendation": "Maintain current authentication policy."
+    },
+    {
+      "url": "/user/settings",
+      "method": "GET",
+      "category": "User",
+      "status_code": 401,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "User account settings - properly protected",
+      "recommendation": "Ensure CSRF tokens on setting updates."
+    },
+    {
+      "url": "/user/orders",
+      "method": "GET",
+      "category": "User",
+      "status_code": 401,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "User purchase history - properly protected",
+      "recommendation": "Validate user ownership (IDOR checks)."
+    },
+    {
+      "url": "/user/invoices",
+      "method": "GET",
+      "category": "User",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "MEDIUM",
+      "reason": "Potentially sensitive user billing endpoint accessible without auth session header",
+      "recommendation": "Enforce strict session validation on all billing subroutes."
+    },
+    {
+      "url": "/admin",
+      "method": "GET",
+      "category": "Admin",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "HIGH",
+      "reason": "Potentially sensitive administrative landing page appears publicly accessible without auth prompt",
+      "recommendation": "Require multi-factor authentication and IP access controls."
+    },
+    {
+      "url": "/admin/dashboard",
+      "method": "GET",
+      "category": "Admin",
+      "status_code": 302,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "Redirects to login page cleanly when unauthorized",
+      "recommendation": "Maintain login redirection."
+    },
+    {
+      "url": "/admin/users",
+      "method": "GET",
+      "category": "Admin",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "HIGH",
+      "reason": "Potentially sensitive administrative user management panel exposed publicly",
+      "recommendation": "Require administrative session authentication and server-side authorization."
+    },
+    {
+      "url": "/admin/settings",
+      "method": "GET",
+      "category": "Admin",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "HIGH",
+      "reason": "Potentially sensitive global configuration control panel accessible without credential challenge",
+      "recommendation": "Restrict to internal networks and enforce administrator role validation."
+    },
+    {
+      "url": "/admin/logs",
+      "method": "GET",
+      "category": "Admin",
+      "status_code": 403,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "System audit log view - protected with 403 Forbidden",
+      "recommendation": "Good security boundary."
+    },
+    {
+      "url": "/internal/status",
+      "method": "GET",
+      "category": "Other",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "MEDIUM",
+      "reason": "Internal system telemetry endpoint is publicly accessible and exposes server details",
+      "recommendation": "Hide internal monitoring metrics behind VPN or authorization gateway."
+    },
+    {
+      "url": "/config/db.json",
+      "method": "GET",
+      "category": "Other",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "MEDIUM",
+      "reason": "Configuration metadata file exposed on web path",
+      "recommendation": "Move configuration files out of the web root webserver directory."
+    },
+    {
+      "url": "/backup/dump.sql",
+      "method": "GET",
+      "category": "Other",
+      "status_code": 404,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "Backup path check returned 404 Not Found",
+      "recommendation": "Ensure backup routines save files outside web directory."
+    },
+    {
+      "url": "/api/v1/health",
+      "method": "GET",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public API health check service status",
+      "recommendation": "Ensure health payload does not disclose environment secrets."
+    },
+    {
+      "url": "/api/v1/products",
+      "method": "GET",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public catalog API route",
+      "recommendation": "Implement response caching and rate limits."
+    },
+    {
+      "url": "/api/v1/users",
+      "method": "GET",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "MEDIUM",
+      "reason": "API endpoint listing registered user accounts responds publicly without auth token header",
+      "recommendation": "Require Bearer JWT authentication and sanitize user fields."
+    },
+    {
+      "url": "/api/v1/accounts",
+      "method": "GET",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "MEDIUM",
+      "reason": "Potentially sensitive financial account data API path accessible publicly",
+      "recommendation": "Require signed JWT token authentication."
+    },
+    {
+      "url": "/api/v1/admin/metrics",
+      "method": "GET",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": true,
+      "risk": "MEDIUM",
+      "reason": "Admin telemetry API endpoint exposed without authorization header requirement",
+      "recommendation": "Enforce RBAC middleware on all `/api/v1/admin/` routes."
+    },
+    {
+      "url": "/assets/main.js",
+      "method": "GET",
+      "category": "Static",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public static frontend Javascript bundle",
+      "recommendation": "Ensure source maps are stripped from production builds if sensitive."
+    },
+    {
+      "url": "/assets/style.css",
+      "method": "GET",
+      "category": "Static",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public static stylesheet asset",
+      "recommendation": "No action needed."
+    },
+    {
+      "url": "/favicon.ico",
+      "method": "GET",
+      "category": "Static",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public favicon graphic asset",
+      "recommendation": "No action needed."
+    },
+    {
+      "url": "/robots.txt",
+      "method": "GET",
+      "category": "Static",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "LOW",
+      "reason": "Robots crawl instructions file lists sensitive disallow paths (/admin, /internal)",
+      "recommendation": "Avoid using robots.txt as security by obscurity; enforce real auth controls."
+    },
+    {
+      "url": "/sitemap.xml",
+      "method": "GET",
+      "category": "Static",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public XML sitemap listing index",
+      "recommendation": "Verify non-public endpoints are excluded from sitemap."
+    },
+    {
+      "url": "/privacy",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public privacy policy disclosure",
+      "recommendation": "No action needed."
+    },
+    {
+      "url": "/terms",
+      "method": "GET",
+      "category": "Public",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "INFO",
+      "reason": "Public terms of service terms",
+      "recommendation": "No action needed."
+    },
+    {
+      "url": "/api/v1/search",
+      "method": "GET",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "LOW",
+      "reason": "Public search query API endpoint",
+      "recommendation": "Implement strict input sanitization and rate limits."
+    },
+    {
+      "url": "/api/v1/feedback",
+      "method": "POST",
+      "category": "API",
+      "status_code": 200,
+      "accessible": true,
+      "requires_protection": false,
+      "risk": "LOW",
+      "reason": "Public user feedback submission endpoint",
+      "recommendation": "Enforce CSRF tokens and rate limiting."
+    },
+    {
+      "url": "/.env",
+      "method": "GET",
+      "category": "Other",
+      "status_code": 404,
+      "accessible": false,
+      "requires_protection": true,
+      "risk": "INFO",
+      "reason": "Environment variables path check returned 404 Not Found",
+      "recommendation": "Ensure hidden dotfiles are blocked at the web server level."
+    }
+  ],
+  "findings": [
+    {
+      "id": "FIND-001",
+      "endpoint": "/admin/users",
+      "severity": "HIGH",
+      "category": "Admin",
+      "title": "Potentially exposed administrative user management panel",
+      "reason": "This endpoint appears to provide administrative user management capabilities while responding with HTTP 200 OK without requiring authentication credentials.",
+      "impact": "Unauthorized actors could gain visibility into system administration functions or user directories.",
+      "solution": "Implement mandatory multi-factor authentication, server-side session checks, and role-based access control (RBAC)."
+    },
+    {
+      "id": "FIND-002",
+      "endpoint": "/admin/settings",
+      "severity": "HIGH",
+      "category": "Admin",
+      "title": "Potentially exposed administrative system settings page",
+      "reason": "Global system configuration interface is publicly reachable without an active authenticated session.",
+      "impact": "Potential exposure of internal configuration parameters and administrative UI state.",
+      "solution": "Require administrator authentication middleware and restrict access via network IP allowlisting."
+    },
+    {
+      "id": "FIND-003",
+      "endpoint": "/admin",
+      "severity": "HIGH",
+      "category": "Admin",
+      "title": "Unprotected administrative root interface",
+      "reason": "The main admin entrance path `/admin` returns HTTP 200 without redirecting unauthenticated visitors to a login portal.",
+      "impact": "Exposes administrative portal layout to anonymous visitors.",
+      "solution": "Configure server-side authentication redirect to `/login` for unauthenticated requests."
+    },
+    {
+      "id": "FIND-004",
+      "endpoint": "/api/v1/users",
+      "severity": "MEDIUM",
+      "category": "API",
+      "title": "Unauthenticated REST API user directory access",
+      "reason": "The REST endpoint `/api/v1/users` returns HTTP 200 OK without requiring an Authorization Bearer header.",
+      "impact": "Potential exposure of user metadata or account lists to unauthorized callers.",
+      "solution": "Enforce API key or JWT token validation headers on all `/api/v1/` user resources."
+    },
+    {
+      "id": "FIND-005",
+      "endpoint": "/api/v1/accounts",
+      "severity": "MEDIUM",
+      "category": "API",
+      "title": "Unprotected account data API route",
+      "reason": "Financial or account-related API route responds to anonymous GET requests.",
+      "impact": "Risk of data leakage if account records are exposed without authorization checks.",
+      "solution": "Validate user ownership (IDOR prevention) and enforce token authentication."
+    },
+    {
+      "id": "FIND-006",
+      "endpoint": "/user/invoices",
+      "severity": "MEDIUM",
+      "category": "User",
+      "title": "Potentially exposed billing invoice endpoint",
+      "reason": "User invoice page responds with HTTP 200 without checking for active login session.",
+      "impact": "Potential exposure of sensitive billing documents.",
+      "solution": "Require session cookie verification before serving invoice content."
+    },
+    {
+      "id": "FIND-007",
+      "endpoint": "/internal/status",
+      "severity": "MEDIUM",
+      "category": "Other",
+      "title": "Exposed internal telemetry and health status",
+      "reason": "Internal system metrics route `/internal/status` is publicly reachable.",
+      "impact": "Discloses infrastructure technical details to external observers.",
+      "solution": "Restrict internal telemetry paths to loopback or private management subnets."
+    },
+    {
+      "id": "FIND-008",
+      "endpoint": "/config/db.json",
+      "severity": "MEDIUM",
+      "category": "Other",
+      "title": "Publicly accessible configuration JSON asset",
+      "reason": "The file `/config/db.json` was located in the public web root.",
+      "impact": "Could reveal database schema names, port numbers, or system configurations.",
+      "solution": "Move configuration files outside the public web server document root (`/var/www/html` or `/public`)."
+    },
+    {
+      "id": "FIND-009",
+      "endpoint": "/robots.txt",
+      "severity": "LOW",
+      "category": "Static",
+      "title": "Robots.txt discloses administrative path locations",
+      "reason": "The `/robots.txt` file contains Disallow directives listing sensitive paths `/admin` and `/internal`.",
+      "impact": "Provides a map of sensitive administrative endpoints to curious observers.",
+      "solution": "Do not rely on robots.txt for security. Ensure all listed disallow paths have robust server authentication."
+    },
+    {
+      "id": "FIND-010",
+      "endpoint": "/forgot-password",
+      "severity": "LOW",
+      "category": "Authentication",
+      "title": "Unrated rate limiting on password recovery form",
+      "reason": "The password reset page does not display CAPTCHA or anti-automation headers.",
+      "impact": "Vulnerable to automated email enumeration or spam abuse.",
+      "solution": "Add rate limiting headers (e.g. `X-RateLimit-Limit`) and reCAPTCHA or Turnstile."
+    },
+    {
+      "id": "FIND-011",
+      "endpoint": "/login",
+      "severity": "LOW",
+      "category": "Authentication",
+      "title": "Missing account lockout header signals on login portal",
+      "reason": "Login portal `/login` lacks rate-limiting headers.",
+      "impact": "Potential for brute-force login attempts against user passwords.",
+      "solution": "Implement IP rate limiting and progressive account lockouts after failed attempts."
+    },
+    {
+      "id": "FIND-012",
+      "endpoint": "/api/v1/admin/metrics",
+      "severity": "MEDIUM",
+      "category": "API",
+      "title": "Admin metrics API path unauthenticated",
+      "reason": "Path `/api/v1/admin/metrics` returns HTTP 200 without authentication headers.",
+      "impact": "Exposes performance metrics and system usage stats.",
+      "solution": "Enforce RBAC security headers and authorization middleware."
+    }
+  ]
+}
